@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
     <TextView
         android:id="@+id/tvInput"
@@ -13,7 +14,9 @@
         android:layout_height="250dp"
         android:background="#EFEFEF"
         android:textSize="48sp"
-        android:maxLength="15" />
+        android:maxLength="15"
+        android:padding="10dp"
+        android:gravity="right|center_vertical"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,7 +55,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="+"
-            android:onClick="onDigit" />
+            android:onClick="onOperator" />
 
     </LinearLayout>
 
@@ -93,7 +96,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="-"
-            android:onClick="onDigit" />
+            android:onClick="onOperator" />
 
     </LinearLayout>
 
@@ -134,7 +137,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="*"
-            android:onClick="onDigit" />
+            android:onClick="onOperator" />
 
     </LinearLayout>
 
@@ -175,7 +178,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="/"
-            android:onClick="onDigit" />
+            android:onClick="onOperator" />
 
     </LinearLayout>
 
@@ -191,7 +194,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="="
-            android:onClick="onDigit" />
+            android:onClick="onEqual" />
 
 
 

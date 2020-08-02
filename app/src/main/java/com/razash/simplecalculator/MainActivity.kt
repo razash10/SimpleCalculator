@@ -13,6 +13,10 @@ class MainActivity : AppCompatActivity() {
 
     private var lastNumeric = false
     private var lastDot = false
+    private var lastOperator = ""
+    private var leftNum = ""
+    private var rightNum = ""
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +34,9 @@ class MainActivity : AppCompatActivity() {
         tvInput.text = ""
         lastNumeric = false
         lastDot = false
+        lastOperator = ""
+        leftNum = ""
+        rightNum = ""
     }
 
     fun onDecimalPoint(view: View) {
@@ -41,90 +48,49 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onEqual(view: View) {
-        if(lastNumeric) {
-            var tvValue = tvInput.text.toString()
-            var prefix = ""
-            try {
-                if(tvValue.startsWith("-")) {
-                    prefix = "-"
-                    tvValue = tvValue.substring(1)
-                }
-                if(tvValue.contains("-")) {
-                    val splitValue = tvValue.split("-")
-                    var left = splitValue[0]
-                    var right = splitValue[1]
+        rightNum = tvInput.text.toString()
+        var output = ""
 
-                    if(!prefix.isEmpty()) {
-                        left = prefix + left
-                    }
-
-                    tvInput.text =
-                        removeZeroAfterDot((left.toDouble() - right.toDouble()).toString())
-
-                } else if(tvValue.contains("+")) {
-                    val splitValue = tvValue.split("+")
-                    var left = splitValue[0]
-                    var right = splitValue[1]
-
-                    if(!prefix.isEmpty()) {
-                        left = prefix + left
-                    }
-
-                    tvInput.text =
-                        removeZeroAfterDot((left.toDouble() + right.toDouble()).toString())
-
-                } else if(tvValue.contains("/")) {
-                    val splitValue = tvValue.split("/")
-                    var left = splitValue[0]
-                    var right = splitValue[1]
-
-                    if(!prefix.isEmpty()) {
-                        left = prefix + left
-                    }
-
-                    tvInput.text =
-                        removeZeroAfterDot((left.toDouble() / right.toDouble()).toString())
-
-                } else if(tvValue.contains("*")) {
-                    val splitValue = tvValue.split("*")
-                    var left = splitValue[0]
-                    var right = splitValue[1]
-
-                    if(!prefix.isEmpty()) {
-                        left = prefix + left
-                    }
-
-                    tvInput.text =
-                        removeZeroAfterDot((left.toDouble() * right.toDouble()).toString())
-                }
-            } catch (e: ArithmeticException) {
-                e.printStackTrace()
+        try {
+            when (lastOperator) {
+                "+" -> output = (leftNum.toDouble() + rightNum.toDouble()).toString()
+                "-" -> output = (leftNum.toDouble() - rightNum.toDouble()).toString()
+                "*" -> output = (leftNum.toDouble() * rightNum.toDouble()).toString()
+                "/" -> output = (leftNum.toDouble() / rightNum.toDouble()).toString()
             }
-        }
+        } catch(e: ArithmeticException) { e.printStackTrace() }
+
+        tvInput.text = finalizeResult(output)
+
+        lastOperator = ""
+        rightNum = ""
+        leftNum = tvInput.text.toString()
     }
 
-    private fun removeZeroAfterDot(result: String) : String {
+    private fun finalizeResult(result: String) : String {
         var value = result
-        if(result.contains(".0")) {
-            value = result.substring(0, result.length - 2)
+        if(result.contains(".")) {
+            while(value.endsWith("0")) {
+                value = value.substring(0, value.length - 1)
+            }
+        }
+        if(value.endsWith(".")) {
+            value = value.substring(0, value.length - 1)
         }
         return value
     }
 
     fun onOperator(view: View) {
-        if (lastNumeric && !isOperatorAdded(tvInput.text.toString())) {
-            tvInput.append((view as Button).text)
+        view as Button
+        if(view.text == "-" && tvInput.text.isEmpty()) {
+                tvInput.append("-")
+        }
+        else if(!tvInput.text.isEmpty() && lastOperator.isEmpty()){
+            leftNum = tvInput.text.toString()
+            lastOperator = view.text.toString()
+            tvInput.text = ""
             lastNumeric = false
             lastDot = false
-        }
-    }
-
-    private fun isOperatorAdded(value: String) : Boolean {
-        return if(value.startsWith("-")) {
-            false
-        } else {
-            (value.contains("+") || value.contains("-") ||
-                    value.contains("*") || value.contains("/"))
         }
     }
 

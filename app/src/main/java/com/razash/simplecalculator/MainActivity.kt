@@ -1,10 +1,10 @@
 package com.razash.simplecalculator
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ArithmeticException
@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity() {
     private var leftNum = ""
     private var rightNum = ""
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -25,13 +24,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onDigit(view: View) {
-        tvInput.append((view as Button).text)
+        if((view as Button).text.toString() == "0" && tvInput.text.toString() == "0") {
+            return
+        }
+        tvInput.append(view.text)
         lastNumeric = true
 
     }
 
     fun onClear(view: View) {
         tvInput.text = ""
+        tvEquation.text = ""
         lastNumeric = false
         lastDot = false
         lastOperator = ""
@@ -48,7 +51,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onEqual(view: View) {
+        if(lastOperator.isEmpty() || tvInput.text.isEmpty()) {
+            return
+        }
+
         rightNum = tvInput.text.toString()
+
+        val equation = if(leftNum.startsWith("-") && rightNum.startsWith("-")) {
+            "($leftNum) $lastOperator ($rightNum) ="
+        } else if(!leftNum.startsWith("-") && rightNum.startsWith("-")) {
+            "$leftNum $lastOperator ($rightNum) ="
+        } else if(leftNum.startsWith("-") && !rightNum.startsWith("-")) {
+            "($leftNum) $lastOperator $rightNum ="
+        } else {
+            "$leftNum $lastOperator $rightNum ="
+        }
+
+        tvEquation.text = equation
+
         var output = ""
 
         try {
@@ -69,6 +89,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun finalizeResult(result: String) : String {
         var value = result
+        var valueNum = value.toDouble()
+        valueNum = "%.12f".format(valueNum).toDouble()
+        value = valueNum.toString()
         if(result.contains(".")) {
             while(value.endsWith("0")) {
                 value = value.substring(0, value.length - 1)
@@ -76,6 +99,9 @@ class MainActivity : AppCompatActivity() {
         }
         if(value.endsWith(".")) {
             value = value.substring(0, value.length - 1)
+        }
+        if(value == "-0") {
+            value = "0"
         }
         return value
     }
@@ -85,12 +111,22 @@ class MainActivity : AppCompatActivity() {
         if(view.text == "-" && tvInput.text.isEmpty()) {
                 tvInput.append("-")
         }
-        else if(!tvInput.text.isEmpty() && lastOperator.isEmpty()){
+        else if(tvInput.text.isNotEmpty() && lastOperator.isEmpty() &&
+                !tvInput.text.endsWith("-")){
             leftNum = tvInput.text.toString()
             lastOperator = view.text.toString()
+            val result = tvInput.text.toString()
+            val equation = "$result $lastOperator"
+            tvEquation.text = equation
             tvInput.text = ""
             lastNumeric = false
             lastDot = false
+        }
+    }
+
+    fun onDelete(view: View) {
+        if(tvInput.text.isNotEmpty()) {
+            tvInput.text = tvInput.text.substring(0, tvInput.length() - 1)
         }
     }
 
